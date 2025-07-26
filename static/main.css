@@ -1,0 +1,241 @@
+/* =========================================================
+📚 EmcyQ - CSS global avec dark mode, menus et boutons stylés
+========================================================= */
+
+:root {
+  --bg-color: #ffffff;
+  --text-color: #191919;
+  --card-bg: #f8f8fd;
+  --card-border: #d6d6ef;
+  --accent: #7c3aed;
+  --accent-hover: #6435e3;
+  --tooltip-bg: #ffffff;
+  --tooltip-text: #111827;
+  --button-bg: #7c3aed;
+  --button-text: #ffffff;
+  --button-hover: #5b23c4;
+}
+
+body.dark-mode {
+  --bg-color: #1e1e1e;
+  --text-color: #f3f3f3;
+  --card-bg: #2b2b2b;
+  --card-border: #444;
+  --accent: #a78bfa;
+  --accent-hover: #8b5cf6;
+  --tooltip-bg: #2e2e2e;
+  --tooltip-text: #e5e5e5;
+  --button-bg: #a78bfa;
+  --button-text: #1e1e1e;
+  --button-hover: #8b5cf6;
+}
+
+html, body {
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  background: var(--bg-color);
+  color: var(--text-color);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* ===================== HEADER ===================== */
+.header {
+  width: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg-color);
+  border-bottom: 1px solid var(--card-border);
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+}
+
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 10px 38px;
+}
+
+.logo-group {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.logo-img {
+  width: 38px;
+  height: 38px;
+  margin-right: 8px;
+  border-radius: 7px;
+  object-fit: contain;
+  box-shadow: 0 0 2px var(--card-border);
+}
+
+.logo-text {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text-color);
+  letter-spacing: -0.5px;
+  transition: color 0.2s;
+}
+
+.main-nav {
+  display: flex;
+  gap: 28px;
+  align-items: center;
+}
+
+.nav-link {
+  font-size: 1rem;
+  font-weight: 500;
+  text-decoration: none;
+  color: var(--text-color);
+  padding: 6px 8px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.nav-link:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+body.dark-mode .nav-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ===================== DROPDOWN ===================== */
+.dropdown {
+  position: relative;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  top: 120%;
+  left: 0;
+  background-color: var(--bg-color);
+  border: 1px solid var(--card-border);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  min-width: 160px;
+  padding: 6px 0;
+  z-index: 1000;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+.dropdown-content a {
+  display: block;
+  padding: 8px 16px;
+  font-size: 0.95rem;
+  text-decoration: none;
+  color: var(--text-color);
+  transition: background 0.2s;
+}
+
+.dropdown-content a:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+body.dark-mode .dropdown-content a:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ===================== TOGGLE DARK MODE ===================== */
+.toggle-theme {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 26px;
+}
+
+.toggle-theme input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #ccc;
+  transition: 0.3s;
+  border-radius: 34px;
+}
+
+.slider::before {
+  position: absolute;
+  content: "";
+  height: 20px; width: 20px;
+  left: 4px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+}
+
+.toggle-theme input:checked + .slider {
+  background-color: var(--accent);
+}
+
+.toggle-theme input:checked + .slider::before {
+  transform: translateX(24px);
+}
+
+/* ===================== MAIN & FOOTER ===================== */
+.main-container {
+  flex: 1;
+  width: 100%;
+  max-width: 1100px;
+  margin: 20px auto;
+  padding: 20px;
+  background: var(--card-bg);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  transition: background 0.3s;
+}
+
+.footer {
+  padding: 20px;
+  text-align: center;
+  font-size: 0.9em;
+  color: var(--text-color);
+  border-top: 1px solid var(--card-border);
+  background: var(--bg-color);
+}
+
+/* ===================== BUTTONS ===================== */
+.btn {
+  display: inline-block;
+  background: var(--button-bg);
+  color: var(--button-text);
+  padding: 10px 20px;
+  font-weight: 600;
+  font-size: 1rem;
+  border-radius: 12px;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn:hover {
+  background: var(--button-hover);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+  .header-container { padding: 10px 20px; flex-direction: column; align-items: flex-start; }
+  .main-nav { flex-wrap: wrap; gap: 12px; }
+}

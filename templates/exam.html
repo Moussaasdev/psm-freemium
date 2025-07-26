@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block title %}Examen – Session #{{ session_id }}{% endblock %}
+
+{% block content %}
+  <div class="session-header-module-outer">
+    <div class="session-header-module">
+      <div class="exam-timer" id="timer">⏳ Temps restant : --:--</div>
+
+      <span class="session-title">
+        Session Examen n°{{ session_id }} – Question {{ index }} / {{ total }}
+      </span>
+
+      <div class="session-header-actions">
+        <button class="nav-btn" onclick="showConfirmEndExam()" title="Terminer l'examen">
+          <img src="{{ url_for('static', path='stop.svg') }}" width="22" height="22" alt="stop">
+        </button>
+
+        {% if index > 1 %}
+          <form method="post" action="/exam/answer" class="nav-form">
+            <input type="hidden" name="action" value="prev">
+            <input type="hidden" name="question_id" value="{{ question.id }}">
+            <input type="hidden" name="index" value="{{ index }}">
+            <input type="hidden" name="session_id" value="{{ session_id }}">
+            <input type="hidden" name="time_left" value="">
+            <button type="submit" class="nav-btn" title="Question précédente">
+              <img src="{{ url_for('static', path='next.svg') }}" width="22" height="22" alt="prev" style="transform: rotate(180deg);">
+            </button>
+          </form>
+        {% endif %}
+
+        {% if index < total %}
+          <form method="post" action="/exam/answer" class="nav-form">
+            <input type="hidden" name="action" value="next">
+            <input type="hidden" name="question_id" value="{{ question.id }}">
+            <input type="hidden" name="index" value="{{ index }}">
+            <input type="hidden" name="session_id" value="{{ session_id }}">
+            <input type="hidden" name="time_left" value="">
+            <button type="submit" class="nav-btn" title="Question suivante">
+              <img src="{{ url_for('static', path='next.svg') }}" width="22" height="22" alt="next">
+            </button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="quiz-content-block">
+    <h2 class="question-number-title">
+      Question n°{{ index }} : <span class="question-main">{{ question.question_text }}</span>
+    </h2>
+
+    {% if question.question_type == 'multiple_choice' %}
+      <div class="answer-guidance">
+        Coche exactement <strong>{{ expected_answers }}</strong> réponse(s).
+      </div>
+    {% endif %}
+
+    <form method="post" action="/exam/answer" id="exam-form">
+      <div class="answer-list">
+        {% for answer in question.answers %}
+          <div class="answer-card no-feedback">
+            <span class="tick"></span>
+            <div class="answer-content">
+              <label class="answer-label">
+                {% if question.question_type == 'multiple_choice' %}
+                  <input type="checkbox" name="selected_ids" value="{{ answer.id }}" {% if answer.id in selected_ids %}checked{% endif %}>
+                {% else %}
+                  <input type="radio" name="selected_ids" value="{{ answer.id }}" {% if answer.id in selected_ids %}checked{% endif %}>
+                {% endif %}
+                {{ answer.answer_text }}
+              </label>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+      <input type="hidden" name="action" value="update">
+      <input type="hidden" name="question_id" value="{{ question.id }}">
+      <input type="hidden" name="index" value="{{ index }}">
+      <input type="hidden" name="session_id" value="{{ session_id }}">
+      <input type="hidden" name="time_left" value="">
+      <button type="submit" id="fake-submit" style="display:none;"></button>
+    </form>
+  </div>
+
+  <!-- Modal de fin -->
+  <div id="confirm-modal" class="modal" style="display:none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.3); z-index: 999;">
+    <div class="modal-content" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 12px; box-shadow: 0 0 20px rgba(0,0,0,0.3); text-align: center;">
+      <h3 style="font-size: 1.4em; margin-bottom: 18px;">⚠️ Terminer l'examen ?</h3>
+      <p style="margin-bottom: 18px;">Les réponses non renseignées seront comptées comme incorrectes.</p>
+      <div class="modal-actions" style="display: flex; justify-content: center; gap: 20px;">
+        <button onclick="closeConfirmEndExam()" style="padding: 10px 20px; background: #bbb; border: none; border-radius: 8px; cursor: pointer;">Annuler</button>
+        <form method="post" action="/exam/answer">
+          <input type="hidden" name="action" value="submit">
+          <input type="hidden" name="session_id" value="{{ session_id }}">
+          <input type="hidden" name="time_left" value="" id="final_time_left">
+          <input type="hidden" name="question_id" value="{{ question.id }}">
+          <input type="hidden" name="index" value="{{ index }}">
+          <button type="submit" class="confirm-btn" style="padding: 10px 20px; background: #e6502d; color: white; border: none; border-radius: 8px; cursor: pointer;">✅ Soumettre</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let timeLeft = {{ time_left if time_left is not none else 3600 }};
+    const timerElem = document.getElementById('timer');
+
+    function formatTime(sec) {
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+    }
+    function updateTimer() {
+      timerElem.textContent = "⏳ Temps restant : " + formatTime(timeLeft);
+      if (timeLeft <= 60) timerElem.classList.add("warning");
+      if (timeLeft <= 0) {
+        document.getElementById('fake-submit').click();
+        clearInterval(timerInterval);
+      }
+    }
+    updateTimer();
+    const timerInterval = setInterval(() => {
+      timeLeft--;
+      updateTimer();
+    }, 1000);
+
+    // ✅ Copie les réponses sélectionnées dans chaque formulaire avant envoi
+    document.querySelectorAll("form").forEach(form => {
+      form.addEventListener("submit", () => {
+        document.querySelectorAll("input[name='selected_ids']:checked").forEach(input => {
+          const clone = document.createElement("input");
+          clone.type = "hidden";
+          clone.name = "selected_ids";
+          clone.value = input.value;
+          form.appendChild(clone);
+        });
+        form.querySelectorAll("input[name='time_left']").forEach(input => {
+          input.value = timeLeft;
+        });
+      });
+    });
+
+    function showConfirmEndExam() {
+      document.getElementById('confirm-modal').style.display = 'block';
+    }
+    function closeConfirmEndExam() {
+      document.getElementById('confirm-modal').style.display = 'none';
+    }
+  </script>
+{% endblock %}

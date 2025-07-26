@@ -1,0 +1,44 @@
+Activer le .venv dnas PowerShell
+.venv\Scripts\Activate    
+(et on doit avoir (.venv) PS C:\Users\user\Documents\psm-freemium>) qui s'affiche
+
+Pour le désactiver c'est juste :
+deactivate
+--------------------------------------------------------------------------------------
+
+# ========================================
+# 🔁 PROCEDURE POUR RELANCER FASTAPI LOCAL
+# ========================================
+
+# Étape 1 : Aller dans le dossier du projet
+# (À adapter si tu as déplacé le dossier)
+cd "C:\Users\user\Documents\psm-freemium"
+
+# Étape 2 : Activer l’environnement virtuel
+# (Nécessaire pour accéder à toutes les dépendances installées via pip)
+.venv\Scripts\Activate.ps1
+# 👉 Tu dois voir apparaître (.venv) au début de la ligne
+
+# Étape 3 : Lancer le serveur FastAPI avec Uvicorn
+uvicorn app.main:app --reload
+# - app.main = fichier main.py dans le dossier app
+# - app = instance FastAPI dans main.py
+# - --reload = recharge automatique à chaque modification
+
+# Le terminal doit afficher :
+# INFO:     Uvicorn running on http://127.0.0.1:8000
+# INFO:     Application startup complete.
+
+# Étape 4 : Tester dans le navigateur
+# → http://127.0.0.1:8000/quiz
+# (ou http://127.0.0.1:8000/docs pour la doc Swagger)
+
+# ⚠️ Si erreur "Internal Server Error" :
+# - Regarde le terminal PowerShell
+# - Lis la trace : elle explique précisément ce qui bloque (fichier, ligne, erreur)
+# - Corrige et recommence à partir de l'étape 1
+
+# ✅ Cette procédure marche toujours tant que :
+# - tu es dans le bon dossier
+# - ton .venv est bien activé
+# - uvicorn est bien installé dans l’environnement

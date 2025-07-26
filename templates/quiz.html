@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% block title %}Quiz – Session #{{ session_id }}{% endblock %}
+
+{% block content %}
+  {% if session_active %}
+    <div class="session-header-module-outer">
+      <div class="session-header-module">
+
+        <!-- 🔹 MODULE SCORE (structure compacte avec % + tooltip cerveau) -->
+        <!-- ✅ Score compact intégré dans le header -->
+        <!-- 🔹 SCORE INLINE – à gauche du titre -->
+        <!-- 🔹 Score compact avec tooltip -->
+        <!-- 🔹 Score compact avec tooltip -->
+        <div class="session-score-inline">
+          Score : {{ score_percent }}%
+          <div class="tooltip-container">
+            🧠
+            <div class="tooltip-content">
+              <div>{{ score_correct }} ✅ & {{ score_wrong }} ❌</div>
+              <div style="margin-top: 6px;"><strong>Dernières réponses :</strong></div>
+              <div class="answer-summary">
+                {% for result in last_answers %}
+                  {% if result == 'correct' %}🟢
+                  {% elif result == 'wrong' %}🔴
+                  {% else %}⚪
+                  {% endif %}
+                {% endfor %}
+                ... ⌛
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 🏢 TITRE CENTRE -->
+        <span class="session-title">
+          Session d'entraînement n°{{ session_id }} –
+          {% if difficulty_level == 0 %}Tous niveaux
+          {% elif difficulty_level == 1 %}Niv. 1
+          {% elif difficulty_level == 2 %}Niv 2
+          {% elif difficulty_level == 3 %}Niv 3
+          {% else %}Inconnu{% endif %}
+        </span>
+
+        <!-- 🕹️ ACTIONS DROITES -->
+        <div class="session-header-actions">
+          <form method="post" action="/quiz/session/{{ session_id }}/pause">
+            <button type="submit" class="nav-btn" title="Mettre en pause">
+              <img src="{{ url_for('static', path='pause.svg') }}" width="22" height="22" alt="pause">
+            </button>
+          </form>
+          <form method="post" action="/quiz/session/{{ session_id }}/end">
+            <button type="submit" class="nav-btn" title="Arrêter la session">
+              <img src="{{ url_for('static', path='stop.svg') }}" width="22" height="22" alt="stop">
+            </button>
+          </form>
+          {% if show_feedback %}
+            <form method="get" action="/quiz/session/{{ session_id }}">
+              <button type="submit" class="nav-btn" title="Question suivante">
+                <img src="{{ url_for('static', path='next.svg') }}" width="22" height="22" alt="next">
+              </button>
+            </form>
+          {% endif %}
+        </div>
+
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- 🔹 BLOC QUIZ PRINCIPAL -->
+  <div class="quiz-content-block">
+    <h2 class="question-number-title">
+      Question n°{{ question_index }} : <span class="question-main">{{ question.question_text }}</span>
+    </h2>
+
+    {% if question.question_type == 'multiple_choice' %}
+      <div class="answer-guidance">
+        Coche exactement <strong>{{ expected_answers }}</strong> réponse(s).
+      </div>
+    {% endif %}
+
+    <form method="post" action="/quiz/session/{{ session_id }}/answer" id="quiz-form"
+          data-expected="{{ expected_answers }}"
+          data-type="{{ question.question_type }}">
+      <div class="answer-list">
+        {% for answer in question.answers %}
+          <div class="answer-card
+            {% if show_feedback %}
+              {% if answer.is_correct %}correct{% else %}incorrect{% endif %}
+            {% else %}
+              no-feedback
+            {% endif %}
+          ">
+            <span class="tick">
+              {% if show_feedback and answer.is_selected %}✔️{% endif %}
+            </span>
+            <div class="answer-content">
+              <label class="answer-label{% if show_feedback %} feedback-mode{% endif %}">
+                {% if question.question_type == 'multiple_choice' %}
+                  <input type="checkbox" name="selected_ids" value="{{ answer.id }}"
+                    {% if answer.is_selected %}checked{% endif %}
+                    {% if show_feedback %}disabled{% endif %}>
+                {% else %}
+                  <input type="radio" name="selected_ids" value="{{ answer.id }}"
+                    {% if answer.is_selected %}checked{% endif %}
+                    {% if show_feedback %}disabled{% endif %}>
+                {% endif %}
+                {{ answer.answer_text }}
+              </label>
+              {% if show_feedback and answer.explanation %}
+                <span class="explanation">{{ answer.explanation }}</span>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+      <input type="hidden" name="question_id" value="{{ question.id }}">
+      {% if not show_feedback %}
+        <div id="error-box" class="error-message"></div>
+        <button type="submit" class="validate-btn">Valider</button>
+      {% endif %}
+    </form>
+
+    {% if show_feedback and question.explanation_detailed %}
+      <div class="correction-actions-row">
+        <button class="btn btn-primary explication-btn" onclick="toggleExplanation()" type="button">
+          Plus d’explications
+        </button>
+      </div>
+      <div id="explication-longue" class="details-explication" style="display: none;">
+        {{ question.explanation_detailed | safe }}
+      </div>
+    {% endif %}
+  </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("quiz-form");
+    const errorBox = document.getElementById("error-box");
+    if (!form || !errorBox) return;
+    const expected = parseInt(form.dataset.expected || "0");
+    const isMultiple = form.dataset.type === "multiple_choice";
+    form.addEventListener("submit", function (e) {
+      errorBox.style.display = "none";
+      errorBox.textContent = "";
+      if (isMultiple) {
+        const checked = form.querySelectorAll('input[type="checkbox"]:checked').length;
+        if (checked !== expected) {
+          e.preventDefault();
+          errorBox.textContent = `Veuillez sélectionner exactement ${expected} réponse(s).`;
+          errorBox.style.display = "block";
+        }
+      } else {
+        const selected = form.querySelectorAll('input[type="radio"]:checked').length;
+        if (selected === 0) {
+          e.preventDefault();
+          errorBox.textContent = "Veuillez sélectionner une réponse.";
+          errorBox.style.display = "block";
+        }
+      }
+    });
+  });
+
+  function toggleExplanation() {
+    var box = document.getElementById('explication-longue');
+    if (!box) return;
+    if (box.style.display === 'block') {
+      box.style.display = 'none';
+    } else {
+      box.style.display = 'block';
+      box.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }
+</script>
+{% endblock %}

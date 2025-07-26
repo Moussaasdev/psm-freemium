@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Correction – Examen Scrum{% endblock %}
+
+{% block content %}
+  <div class="session-header-module-outer">
+    <div class="session-header-module">
+      <div class="session-score-inline">
+        Score : {{ score_percent }}%
+      </div>
+
+      <span class="session-title">
+        Correction examen blanc n°{{ session_id }}
+      </span>
+      <div class="session-header-actions">
+        <a href="/exam/correction/{% if index > 1 %}{{ index - 1 }}{% else %}{{ total }}{% endif %}?session_id={{ session_id }}" class="nav-btn" title="Précédent">
+          <img src="{{ url_for('static', path='next.svg') }}" style="transform: rotate(180deg);" width="22" height="22" alt="Précédent">
+        </a>
+        <a href="/exam/correction/{% if index < total %}{{ index + 1 }}{% else %}1{% endif %}?session_id={{ session_id }}" class="nav-btn" title="Suivant">
+          <img src="{{ url_for('static', path='next.svg') }}" width="22" height="22" alt="Suivant">
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="quiz-content-block">
+    <h2 class="question-number-title">
+      Question n°{{ index }} / {{ total }} : <span class="question-main">{{ question.question_text }}</span>
+    </h2>
+
+    <div class="answer-list">
+      {% for ans in question.answers %}
+        <div class="answer-card {% if ans.is_correct %}correct{% else %}incorrect{% endif %}">
+          <span class="tick">{% if ans.is_selected %}✔️{% endif %}</span>
+          <div class="answer-content">
+            <label class="answer-label feedback-mode">{{ ans.text }}</label>
+            {% if ans.explanation %}
+              <span class="explanation">{{ ans.explanation }}</span>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    {% if question.explanation_detailed %}
+      <div class="correction-actions-row">
+        <button class="btn btn-primary explication-btn" onclick="toggleExplanation()" type="button">
+          Plus d’explications
+        </button>
+      </div>
+      <div id="explication-longue" class="details-explication" style="display: none;">
+        {{ question.explanation_detailed | safe }}
+      </div>
+    {% endif %}
+  </div>
+
+  <script>
+    const toggle = document.getElementById('toggle-theme');
+    if (localStorage.getItem('theme') === 'dark') {
+      document.body.classList.add('dark-mode');
+      toggle.checked = true;
+    }
+    toggle.addEventListener('change', function() {
+      if(this.checked) {
+        document.body.classList.add('dark-mode');
+        localStorage.setItem('theme', 'dark');
+      } else {
+        document.body.classList.remove('dark-mode');
+        localStorage.setItem('theme', 'light');
+      }
+    });
+
+    function toggleExplanation() {
+      var box = document.getElementById('explication-longue');
+      if (!box) return;
+      if (box.style.display === 'block') {
+        box.style.display = 'none';
+      } else {
+        box.style.display = 'block';
+        box.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+  </script>
+{% endblock %}

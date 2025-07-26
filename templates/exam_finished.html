@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Examen terminé{% endblock %}
+
+{% block content %}
+  {% set percent = (100 * score_correct / (score_correct + score_wrong)) if (score_correct + score_wrong) > 0 else 0 %}
+  {% set passed = percent >= 85 %}
+
+  <div style="text-align: center; margin-top: 60px;">
+    <h2>Vous avez terminé votre examen blanc n°{{ session_id }} –</h2>
+
+    <p style="font-size: 22px;">
+      {% if passed %}
+        🥳 Félicitations ! Vous avez obtenu un score de :
+      {% else %}
+        😢 Dommage… Vous avez obtenu un score de :
+      {% endif %}
+    </p>
+
+    <p style="font-size: 48px; font-weight: bold; margin: 10px 0;
+              color: {% if passed %}green{% else %}darkred{% endif %};">
+      {{ "%.1f"|format(percent) }}%
+    </p>
+
+    <p style="margin-bottom: 30px; font-size: 18px;">
+      {% if passed %}
+        Continuez à pratiquer pour rester au top. Bravo 🎯
+      {% else %}
+        Continuez à vous entraîner, vous allez y arriver !
+      {% endif %}
+    </p>
+
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
+
+      <a href="/train" class="btn btn-primary" style="text-decoration: none; min-width: 350px; text-align: center;">
+        🧠 Lancer une session d'entraînement
+      </a>
+
+      <a href="/exam" class="btn btn-primary" style="text-decoration: none; min-width: 350px; text-align: center;">
+        ↻ Recommencer un examen blanc
+      </a>
+
+      <a href="/exam/correction/1?session_id={{ session_id }}" class="btn btn-primary" style="text-decoration: none; min-width: 350px; text-align: center;">
+        🧐 Voir la correction
+      </a>
+
+    </div>
+  </div>
+{% endblock %}

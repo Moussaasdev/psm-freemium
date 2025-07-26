@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+  <!-- Rectangle intérieur, bord arrondi (blanc) -->
+  <rect
+    height="168"
+    rx="14.9"
+    width="168"
+    x="44"
+    y="44"
+    fill="#fff"
+  />
+</svg>

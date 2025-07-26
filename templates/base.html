@@ -1,0 +1,93 @@
+<!-- ===============================================================
+📄 base.html — Template principal avec menus + dark mode + dropdown
+=============================================================== -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}EmcyQ{% endblock %}</title>
+
+  <!-- 🌐 Police Inter pour un look Notion/modern -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <!-- 🎨 Feuille de style principale -->
+  <link rel="stylesheet" href="{{ url_for('static', path='main.css') }}">
+
+  <!-- 🌙 Script du Dark Mode -->
+  <script defer src="{{ url_for('static', path='theme.js') }}"></script>
+</head>
+
+<body>
+  <!-- ======================
+  🔝 HEADER GLOBAL + NAVBAR
+  ======================= -->
+  <header class="header">
+    <div class="header-container">
+      <!-- 🔵 Logo à gauche -->
+      <a href="/" class="logo-group">
+        <img src="{{ url_for('static', path='logo-emcyq.svg') }}" alt="Logo EmcyQ" class="logo-img">
+        <span class="logo-text">EmcyQ</span>
+      </a>
+
+      <!-- 🧭 Menus de navigation + toggle dark mode -->
+      <nav class="main-nav">
+        {% block header_nav %}
+          <!-- 🧠 Modes : menu déroulant -->
+          <div class="dropdown">
+            <a class="nav-link">🧠 Modes ▾</a>
+            <div class="dropdown-content">
+              <a href="/quiz">Entraînement</a>
+              <a href="/exam">Examen blanc</a>
+            </div>
+          </div>
+
+          <!-- 📊 Dashboard -->
+          <a href="/dashboard" class="nav-link">📊 Tableau de bord</a>
+
+          <!-- 📜 Certifications -->
+          <a href="/certifications" class="nav-link">📜 Certifications</a>
+
+          <!-- 🙋 Connexion / Mon compte -->
+          {% if user_authenticated %}
+            <div class="dropdown">
+              <a class="nav-link">👋 {{ user_firstname }} ▾</a>
+              <div class="dropdown-content">
+                <a href="/account">Mon compte</a>
+                <a href="/logout">Déconnexion</a>
+              </div>
+            </div>
+          {% else %}
+            <a href="/login" class="nav-link">🔐 Connexion</a>
+          {% endif %}
+
+          <!-- ❔ À propos -->
+          <a href="/about" class="nav-link">❔ À propos</a>
+
+          <!-- 🌙 Toggle dark mode -->
+          <label class="toggle-theme" title="Mode sombre">
+            <input type="checkbox" id="toggle-theme" />
+            <span class="slider"></span>
+          </label>
+        {% endblock %}
+      </nav>
+    </div>
+  </header>
+
+  <!-- ===========================
+  📦 CONTENU PRINCIPAL DE LA PAGE
+  ============================ -->
+  <main class="main-container">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- ===============
+  ⚙️ FOOTER GÉNÉRIQUE
+  ================ -->
+  <footer class="footer">
+    <div class="container">
+      <span>&copy; 2025 EmcyQ – Next-Gen Certification Training</span>
+    </div>
+  </footer>
+</body>
+</html>

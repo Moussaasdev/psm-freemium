@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Accueil – EmcyQ{% endblock %}
+
+{% block header_nav %}
+  {% if user %}
+    <a href="/profile" class="user-avatar">{{ user.initials }}</a>
+  {% else %}
+    <a href="/login" class="btn btn-connexion">Connexion</a>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  <h1 class="welcome-title">Bienvenue sur <span style="color:#7c3aed;">EmcyQ</span></h1>
+  <p class="welcome-desc">
+    Préparez toutes vos certifications QCM à votre rythme, en mode entraînement ou en simulation d’examen blanc.
+  </p>
+
+  <div class="home-cards">
+    <!-- ----- Mode Entraînement ----- -->
+    <section class="mode-card">
+      <div class="mode-icon">
+        <!-- SVG éclair -->
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M7.5 13L13 3V11H16.5L11 21V13H7.5Z" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <h2>Mode entraînement</h2>
+      <p>
+        Entraînez-vous sans limite, choisissez le niveau de difficulté et obtenez un feedback immédiat question par question.
+      </p>
+      {% if paused_session %}
+        <div class="paused-message">
+          <span>⏸️ Une session d’entraînement est en pause.</span>
+          <span class="small">Vous pouvez la reprendre ou démarrer une nouvelle session.</span>
+        </div>
+      {% endif %}
+      <form method="get" action="/quiz" style="width:100%;">
+        <button class="btn btn-primary" type="submit">
+          Lancer une session d’entraînement
+        </button>
+      </form>
+    </section>
+
+    <!-- ----- Mode Examen Blanc ----- -->
+    <section class="mode-card">
+      <div class="mode-icon">
+        <!-- SVG horloge -->
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#7c3aed" stroke-width="2"/><path d="M12 7V12L15 15" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <h2>Examen blanc</h2>
+      <p>
+        Simulez les conditions réelles de l’examen avec un nombre de questions officiel, un compte à rebours et une correction finale.
+      </p>
+      <form method="get" action="/exam" style="width:100%;">
+        <button class="btn btn-primary" type="submit">
+          Lancer un examen blanc
+        </button>
+      </form>
+    </section>
+  </div>
+{% endblock %}

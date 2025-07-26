@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Mode Entraînement{% endblock %}
+
+{% block content %}
+  <h1 style="text-align:center; margin-top: 20px;">Mode entraînement</h1>
+
+  <div class="quiz-content-block" style="width: 100%; box-sizing: border-box;">
+
+    {% if paused_session %}
+      <!-- 🟣 Carte 1 – Session en pause -->
+        <div class="answer-card" style="flex-direction: column; align-items: center; padding: 20px; box-sizing: border-box; text-align: center;">
+
+          <!-- 🔹 Titre avec date et heure -->
+          <div style="font-size: 1.15em; font-weight: 700; margin-bottom: 6px;">
+            Session d'entraînement n°{{ paused_session.id }} – Niveau : {{ paused_session.difficulty_level }}
+          </div>
+          <div style="color: #6b7280; font-size: 0.95em; margin-bottom: 14px;">
+            Mise en pause le {{ paused_session.paused_at.strftime('%d/%m/%Y à %H:%M') if paused_session.paused_at else '—' }}
+          </div>
+        
+          <!-- 🟣 Bloc complet avec fond lavande -->
+          <div class="session-score-inline" style="display: inline-flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px 16px; width: fit-content; text-align: center; margin-bottom: 18px;">
+            <div style="font-size: 1.1em; font-weight: 700;">
+              Score : {{ score_percent or 0 }}%
+            </div>
+            <div style="font-size: 0.87em;">
+              {{ score_correct }} ✅ & {{ score_wrong }} ❌
+            </div>
+            <div style="font-size: 1.0em; margin-top: 2px; white-space: nowrap;">
+              {% for result in last_answers %}
+                {% if result == 'correct' %}🟢
+                {% elif result == 'wrong' %}🔴
+                {% else %}⚪
+                {% endif %}
+              {% endfor %}
+              ... ⌛
+            </div>
+          </div>
+
+
+
+        
+          <!-- 🔁 Bouton reprendre -->
+          <a href="/quiz/session/{{ paused_session.id }}" style="text-decoration: none; margin-top: 18px;">
+            <button class="btn btn-primary">▶️ Reprendre la session</button>
+          </a>
+        </div>
+
+
+      <!-- Ligne OU -->
+      <div style="text-align:center; margin: 22px 0; font-weight:600;">— OU —</div>
+    {% endif %}
+
+    <!-- 🟢 Carte 2 – Nouvelle session -->
+    <div class="answer-card" style="flex-direction: column; align-items: center; padding: 20px; box-sizing: border-box; text-align: center;">
+    
+      <!-- 🔹 Titre -->
+      <div style="font-size: 1.15em; font-weight: 700; margin-bottom: 14px;">
+        Commencez un nouvel entraînement
+      </div>
+    
+      <!-- 🎚️ Formulaire niveau -->
+      <form method="get" action="/quiz/start" style="text-align: center; width: 100%;">
+      
+        <!-- Ligne niveau -->
+        <div style="display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 16px;">
+          <label for="difficulty" style="font-weight: 600;">Choix du niveau :</label>
+          <select name="level" id="difficulty" style="padding: 8px 14px; font-size: 1em; border-radius: 6px;">
+            <option value="0">Tous niveaux</option>
+            <option value="1">Niveau 1 - Facile</option>
+            <option value="2">Niveau 2 - Moyen</option>
+            <option value="3">Niveau 3 - Difficile</option>
+          </select>
+        </div>
+      
+        <!-- Bouton en dessous -->
+        <button class="btn-primary" type="submit">✨ Nouvelle session</button>
+      </form>
+    
+      <!-- ⚠️ Alerte si session en pause -->
+      {% if paused_session %}
+        <div style="margin-top: 14px; font-size: 0.95em; color: #7c3aed;">
+          ⚠️ Si vous démarrez une nouvelle session, celle en pause sera perdue.
+        </div>
+      {% endif %}
+      
+    </div>
+
+    
+  </div>
+{% endblock %}
